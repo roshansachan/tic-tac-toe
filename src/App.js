@@ -207,7 +207,7 @@ class  App extends React.Component{
     return(
         <div>
           { this.state.isTie  && <div>Its a Tie</div>  }
-          { this.state.winner !== '' && <div>{ `${this.state.winner} Wins` }</div>  }
+          { this.state.winner !== '' && <div>{ `${this.state.winner} Loses` }</div>  }
           <Board>
             {  this.state.board.map(  (row,rowIndex)=> row.map(  (column,columnIndex )=> <Square  onClick={ ()=> this.markPosition({x:rowIndex , y: columnIndex}) } key={ rowIndex + '' + columnIndex } > {this.state.board[rowIndex][columnIndex]} </Square>  ))}
           </Board>
