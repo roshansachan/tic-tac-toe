@@ -20,6 +20,7 @@ const Square = styled.div`
   align-items:center;
   justify-content:center;
   border:1px solid #ccc;
+  cursor:pointer;
 `
 const Board = styled.div`
   width:310px;
@@ -39,6 +40,12 @@ font-size:30px;
 text-align:center;
 margin-top:20px;
 
+`
+const CurrentPlayer =styled.div`
+font-size:30px;
+text-align:center;
+margin-bottom:10px;
+visibility: ${props=> props.visibility ? 'visible':'hidden'} ;
 `
 class  App extends React.Component{
 
@@ -162,6 +169,7 @@ class  App extends React.Component{
       if(markAbleMoves.length>0){
 
         this.markPosition(markAbleMoves[0]);
+
         return false;
       }
     }
@@ -219,6 +227,10 @@ class  App extends React.Component{
         <Wrapper >
           <div>
             <div>
+              {<CurrentPlayer visibility={(this.state.winner === '' && !this.state.isTie)} >
+                {`${this.state.currentPlayer}'s turn`}
+              </CurrentPlayer>}
+
               <Board>
                 {  this.state.board.map(  (row,rowIndex)=> row.map(  (column,columnIndex )=> <Square  onClick={ ()=> this.markPosition({x:rowIndex , y: columnIndex}) } key={ rowIndex + '' + columnIndex } > {this.state.board[rowIndex][columnIndex]} </Square>  ))}
               </Board>
