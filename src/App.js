@@ -8,12 +8,6 @@ import './App.css';
 const PLAYER_1= 'X';
 const PLAYER_2= 'O';
 
-const POINTS = {
-  X: 1,
-  O : -1,
-  tie: 0
-}
-
 const PLAYERS ={
   'COMPUTER': 'X',
   'HUMAN': 'O'
@@ -51,7 +45,7 @@ class  App extends React.Component{
     };
   }
   getWinner =(board)=>{
-    const newBoard  = [...this.state.board];
+    const newBoard  = [...board];
     let winner = '';
     for(let i=0; i< 3; i++){
       if(newBoard[i][0] === newBoard[i][1] && newBoard[i][1] === newBoard[i][2] && newBoard[i][2] !== ''){
@@ -76,83 +70,57 @@ class  App extends React.Component{
 
   };
 
+  winningSolutions=[
+    ['00','01','02'],
+    ['10','11','12'],
+    ['20','21','22'],
+    ['00','10','20'],
+    ['01','11','21'],
+    ['02','12','22'],
+    ['00','11','22'],
+    ['02','11','20'],
+  ];
 
+  getSolutionsWithXYCombo=(speculatedMoveXY, existingPosition)=>{
+      const solutions = [];
 
+     this.winningSolutions.forEach( solution => {
 
-  // function minimax(node, maximizingPlayer)
-  // const winner = getWinner();
-  // if(winner)	{
-  //   return POINTS[winner];
-  // }
-  //
-  //
-  //
-  //
-  // if maximizingPlayer then
-  // value := −∞
-  //
-  // AVAILABLESPACE()
-  //
-  // highsetScore=−Infinity
-  // set value
-  // score = algo();
-  // if(score > highsetScore)
-  // highsetScore=score;
-  //
-  //
-  // return value
-  // else (* minimizing player *)
-  //
-  // AVAILABLESPACE()
-  // highsetScore=Infinity
-  // set value
-  // score = algo();
-  // if(score < highsetScore)
-  // lowestScore=score;
+       if(solution.indexOf(speculatedMoveXY) !== -1 && solution.indexOf(existingPosition) !== -1  ){
+         solutions.push(solution);
+       }
+     });
+     return solutions;
 
+  }
 
+  getXAndYObject=(XYString)=>{
 
-
-
-  minimax = (board,maximizingPlayer)=>{
-    const winner = this.getWinner(board);
-    const newBoard = [...board];
-    if(winner !== ''){
-      return POINTS[winner];
-    }
-
-    if(maximizingPlayer){
-      let availablePositions = this.getAvailablePositions(newBoard);
-      let highestScore = -Infinity;
-      availablePositions.forEach(position=> {
-        newBoard[position.x][position.y]= PLAYERS.COMPUTER;
-        let score = this.minimax(newBoard,false);
-        if(score > highestScore){
-          highestScore = score;
-        }
-        newBoard[position.x][position.y]='';
-      });
-
-      return  highestScore;
-    }else{
-      let availablePositions = this.getAvailablePositions(newBoard);
-      let lowestScore = Infinity;
-      availablePositions.forEach(position=> {
-        newBoard[position.x][position.y]= PLAYERS.HUMAN;
-        let score = this.minimax(newBoard,true);
-        newBoard[position.x][position.y]='';
-        if(score < lowestScore){
-          lowestScore = score;
-        }
-      });
-      return  lowestScore;
+    return {
+      x: XYString[0],
+      y: XYString[1]
     }
   };
+  checkIfItHasO=(board, oneOfWinningSolution, speculatedMove)=>{
 
+    const newBoard = [...board];
+
+    let {x,y}=speculatedMove;
+    newBoard[x][y] = 'X';
+    let resultingFormation='';
+    oneOfWinningSolution.forEach( position => {
+
+      let {x,y}=this.getXAndYObject(position);
+      resultingFormation += newBoard[x][y];
+    });
+    newBoard[x][y]='';
+    return resultingFormation.indexOf('O') !== -1;
+
+  };
   getAvailablePositions=(board)=>{
       const newBoard = [...board];
       const availablePositions=[];
-    newBoard.forEach( (row,rowIndex) =>
+      newBoard.forEach( (row,rowIndex) =>
         row.forEach( (column,columnIndex) => {
           if(column === ''){
             availablePositions.push({x:rowIndex, y: columnIndex});
@@ -163,39 +131,32 @@ class  App extends React.Component{
 
   };
 
+
   computerPlays=(board)=>{
       const newBoard = [...board];
       const availablePositions = this.getAvailablePositions(newBoard);
+      const markAbleMoves=[];
 
-      // const randomPosition = Math.floor(Math.random() * (availablePositions.length  ));
 
-    // score = algo();
-    // if(score > highsetScore)
-    //   highsetScore=score;
-    // positon
-    //
-    //
-    //
-    //
-    // nextMove
+    for(let i=0;i< availablePositions.length;i++){
 
-    let highestScore = -Infinity;
-    let nextMove;
-    availablePositions.forEach(position =>{
+      let availablePosition=availablePositions[i];
+      const possibleSolutions = this.getSolutionsWithXYCombo(availablePosition.x + '' +availablePosition.y, '11' );
 
-      newBoard[position.x][position.y]= PLAYERS.COMPUTER;
-      let score = this.minimax(board, false);
-      newBoard[position.x][position.y]='';
-      if(score > highestScore){
-        highestScore = score;
-        nextMove = { x: position.x, y : position.y};
+      possibleSolutions.forEach(solution => {
+        if(this.checkIfItHasO(newBoard,solution,availablePosition)){
+          markAbleMoves.push(availablePosition);
+        }
+      });
+      if(markAbleMoves.length>0){
+
+        this.markPosition(markAbleMoves[0]);
+        return false;
       }
-    });
-
-      this.markPosition(nextMove);
-
+    }
   };
   markPosition = ({x,y})=>{
+
     const newBoard = [...this.state.board];
     if(this.state.winner !== '' || this.state.isTie){
         return;
@@ -213,7 +174,7 @@ class  App extends React.Component{
   };
 
   componentDidMount() {
-    this.markPosition({x:0,y:0});
+    this.markPosition({x:1,y:1});
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -234,7 +195,7 @@ class  App extends React.Component{
       }
 
 
-      if(prevState.currentPlayer === PLAYERS.HUMAN){
+      if(prevState.currentPlayer === PLAYERS.HUMAN && winner === ''){
         this.computerPlays(this.state.board);
       }
 
