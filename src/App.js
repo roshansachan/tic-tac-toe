@@ -29,6 +29,17 @@ const Board = styled.div`
   justify-content:space-between;
    flex-wrap:wrap;
 `;
+const  Wrapper =styled.div`
+display:flex;
+  justify-content:center;
+  margin-top:50px;
+`;
+const Result =styled.div`
+font-size:30px;
+text-align:center;
+margin-top:20px;
+
+`
 class  App extends React.Component{
 
   constructor(props) {
@@ -205,13 +216,20 @@ class  App extends React.Component{
 
   render() {
     return(
-        <div>
-          { this.state.isTie  && <div>Its a Tie</div>  }
-          { this.state.winner !== '' && <div>{ `${this.state.winner} Loses` }</div>  }
-          <Board>
-            {  this.state.board.map(  (row,rowIndex)=> row.map(  (column,columnIndex )=> <Square  onClick={ ()=> this.markPosition({x:rowIndex , y: columnIndex}) } key={ rowIndex + '' + columnIndex } > {this.state.board[rowIndex][columnIndex]} </Square>  ))}
-          </Board>
-        </div>
+        <Wrapper >
+          <div>
+            <div>
+              <Board>
+                {  this.state.board.map(  (row,rowIndex)=> row.map(  (column,columnIndex )=> <Square  onClick={ ()=> this.markPosition({x:rowIndex , y: columnIndex}) } key={ rowIndex + '' + columnIndex } > {this.state.board[rowIndex][columnIndex]} </Square>  ))}
+              </Board>
+            </div>
+            <Result >
+              { this.state.isTie  && <div>It's a Tie</div>  }
+              { this.state.winner !== '' && <div>{ `${this.state.winner} Loses` }</div>  }
+            </Result>
+          </div>
+
+        </Wrapper>
 
     )
   }
